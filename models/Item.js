@@ -1,0 +1,37 @@
+const mongoose = require('mongoose');
+
+const itemSchema = new mongoose.Schema({
+  ipmrpCd:   { type: String, unique: true },
+  descript:  String,
+  shortCd:   String,
+  shortDesc: String,
+  itpackCd:  String,
+  itCd:      String,
+  is0Mrp:    { type: Boolean, default: false },
+  mrp:       { type: Number, default: 0 },
+  mrpTag:    String,
+  mrpOrder:  { type: Number, default: 0 },
+  purGrRt:   { type: Number, default: 0 },
+  salnetRt:  { type: Number, default: 0 },
+  stkMarg:   { type: Number, default: 0 },
+  salGrRt:   { type: Number, default: 0 },
+  purRemark: String,
+  salRemark: String,
+  offOnmrp:  { type: Number, default: 0 },
+  closeMt:   { type: Boolean, default: false },
+  purcMarg:  { type: Number, default: 0 },
+  freeQty:   { type: Number, default: 0 },
+  gstPc:     { type: Number, default: 0 },
+  gstCess:   String,
+  purBxRt:   { type: Number, default: 0 },
+  salBxRt:   { type: Number, default: 0 },
+  stkBal:    String,
+  iBarcode:  String,
+  schPc:     { type: Number, default: 0 },
+  hsnCd:     String,
+  claimRt:   { type: Number, default: 0 },
+  expDt:     String,
+  itmPhoto:  String,
+});
+
+module.exports = mongoose.model('Item', itemSchema);

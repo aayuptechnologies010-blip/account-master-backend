@@ -1,0 +1,229 @@
+{
+  "info": {
+    "name": "Account Master API",
+    "_postman_id": "account-master-collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "https://account-master-backend.onrender.com"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{BASE_URL}}/auth/send-otp", "host": ["{{BASE_URL}}"], "path": ["auth", "send-otp"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"9876543210\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{BASE_URL}}/auth/verify-otp", "host": ["{{BASE_URL}}"], "path": ["auth", "verify-otp"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"9876543210\",\n  \"otp\": \"1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{BASE_URL}}/auth/logout", "host": ["{{BASE_URL}}"], "path": ["auth", "logout"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Business",
+      "item": [
+        {
+          "name": "Get Business Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{BASE_URL}}/business", "host": ["{{BASE_URL}}"], "path": ["business"] }
+          }
+        },
+        {
+          "name": "Update Business Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{BASE_URL}}/business", "host": ["{{BASE_URL}}"], "path": ["business"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"My Shop Pvt Ltd\",\n  \"ownerName\": \"Rahul Sharma\",\n  \"phone\": \"9876543210\",\n  \"email\": \"rahul@myshop.com\",\n  \"address\": \"123, MG Road, Mumbai, Maharashtra - 400001\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clients",
+      "item": [
+        {
+          "name": "Get All Clients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{BASE_URL}}/clients", "host": ["{{BASE_URL}}"], "path": ["clients"] }
+          }
+        },
+        {
+          "name": "Add Client",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{BASE_URL}}/clients", "host": ["{{BASE_URL}}"], "path": ["clients"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partyName\": \"Suresh Traders\",\n  \"add1\": \"Shop No 5, Laxmi Market\",\n  \"add2\": \"Dadar West\",\n  \"add3\": \"Mumbai\",\n  \"pinCode\": \"400028\",\n  \"contactNo\": \"9123456780\",\n  \"partyGstinNo\": \"27AABCU9603R1ZX\",\n  \"areaCd\": \"MUM\",\n  \"areaName\": \"Mumbai\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Client",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{BASE_URL}}/clients/:id", "host": ["{{BASE_URL}}"], "path": ["clients", ":id"], "variable": [{ "key": "id", "value": "CLIENT_MONGO_ID_HERE" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partyName\": \"Suresh Traders Updated\",\n  \"contactNo\": \"9999999999\",\n  \"pinCode\": \"400029\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Client",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{BASE_URL}}/clients/:id", "host": ["{{BASE_URL}}"], "path": ["clients", ":id"], "variable": [{ "key": "id", "value": "CLIENT_MONGO_ID_HERE" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Items",
+      "item": [
+        {
+          "name": "Get All Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{BASE_URL}}/items", "host": ["{{BASE_URL}}"], "path": ["items"] }
+          }
+        },
+        {
+          "name": "Get Low Stock Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/items/low-stock?threshold=10",
+              "host": ["{{BASE_URL}}"],
+              "path": ["items", "low-stock"],
+              "query": [{ "key": "threshold", "value": "10" }]
+            }
+          }
+        },
+        {
+          "name": "Add Item",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{BASE_URL}}/items", "host": ["{{BASE_URL}}"], "path": ["items"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descript\": \"Parle-G Biscuit 100g\",\n  \"shortCd\": \"PRLG\",\n  \"shortDesc\": \"Parle G\",\n  \"itpackCd\": \"PKT\",\n  \"itCd\": \"BISCUIT\",\n  \"is0Mrp\": false,\n  \"mrp\": 10,\n  \"mrpTag\": \"MRP Rs.10\",\n  \"mrpOrder\": 1,\n  \"purGrRt\": 7.5,\n  \"salnetRt\": 9,\n  \"stkMarg\": 2.5,\n  \"salGrRt\": 9.5,\n  \"purRemark\": \"Buy in bulk\",\n  \"salRemark\": \"Fast moving\",\n  \"offOnmrp\": 0,\n  \"closeMt\": false,\n  \"purcMarg\": 5,\n  \"freeQty\": 0,\n  \"gstPc\": 5,\n  \"gstCess\": \"0\",\n  \"purBxRt\": 180,\n  \"salBxRt\": 220,\n  \"stkBal\": \"50\",\n  \"iBarcode\": \"8901234567890\",\n  \"schPc\": 0,\n  \"hsnCd\": \"1905\",\n  \"claimRt\": 0,\n  \"expDt\": \"2025-12-31\",\n  \"itmPhoto\": \"\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Item",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{BASE_URL}}/items/:id", "host": ["{{BASE_URL}}"], "path": ["items", ":id"], "variable": [{ "key": "id", "value": "ITEM_MONGO_ID_HERE" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mrp\": 12,\n  \"stkBal\": \"80\",\n  \"salnetRt\": 10\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{BASE_URL}}/items/:id", "host": ["{{BASE_URL}}"], "path": ["items", ":id"], "variable": [{ "key": "id", "value": "ITEM_MONGO_ID_HERE" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invoices",
+      "item": [
+        {
+          "name": "Get All Invoices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{BASE_URL}}/invoices", "host": ["{{BASE_URL}}"], "path": ["invoices"] }
+          }
+        },
+        {
+          "name": "Add Invoice",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{BASE_URL}}/invoices", "host": ["{{BASE_URL}}"], "path": ["invoices"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_name\": \"Suresh Traders\",\n  \"customer_id\": 1,\n  \"product_name\": \"Parle-G Biscuit 100g\",\n  \"quantity\": 10,\n  \"price\": 9,\n  \"total\": 90,\n  \"status\": \"pending\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Invoice",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{BASE_URL}}/invoices/:id", "host": ["{{BASE_URL}}"], "path": ["invoices", ":id"], "variable": [{ "key": "id", "value": "INVOICE_MONGO_ID_HERE" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"paid\",\n  \"total\": 90\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Invoice",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{BASE_URL}}/invoices/:id", "host": ["{{BASE_URL}}"], "path": ["invoices", ":id"], "variable": [{ "key": "id", "value": "INVOICE_MONGO_ID_HERE" }] }
+          }
+        }
+      ]
+    }
+  ]
+}
