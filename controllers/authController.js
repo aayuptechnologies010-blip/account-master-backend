@@ -310,7 +310,7 @@ exports.devLogin = async (req, res) => {
   }
 };
 
-// Send OTP — App Login/Registration (OTP returned in JSON response)
+// Send OTP — App Login/Registration
 exports.sendOtp = async (req, res) => {
   try {
     const { phone } = req.body;
@@ -319,11 +319,12 @@ exports.sendOtp = async (req, res) => {
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes validity
+    const expiry = new Date(Date.now() + 5 * 60 * 1000);
 
     let user = await User.findOne({ phone });
+    const isNew = !user;
+
     if (!user) {
-      // Create user if not exists (auto-register on phone)
       user = new User({ phone, status: 'approved' });
     }
     user.loginOtp = otp;
@@ -332,8 +333,9 @@ exports.sendOtp = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'OTP generated successfully',
-      otp: otp
+      message: isNew ? 'OTP generated. New user will be registered.' : 'OTP generated. Welcome back!',
+      isNew,
+      otp,
     });
   } catch (err) {
     console.error('sendOtp error:', err);
@@ -341,7 +343,7 @@ exports.sendOtp = async (req, res) => {
   }
 };
 
-// Verify OTP — App Login/Registration
+// Verify OTP — App Login/Registration (new user = register+login, existing = login)
 exports.verifyOtp = async (req, res) => {
   try {
     const { phone, otp } = req.body;
@@ -365,33 +367,36 @@ exports.verifyOtp = async (req, res) => {
     if (user.isBlocked) {
       return res.status(403).json({ success: false, message: 'Account suspended' });
     }
-    if (user.status === 'pending') {
-      return res.status(403).json({ success: false, message: 'Account pending admin approval' });
-    }
     if (user.status === 'rejected') {
       return res.status(403).json({ success: false, message: 'Registration rejected' });
     }
 
-    // Clear OTP details upon successful login
+    // isNew = user ne pehle kabhi login nahi kiya (name/email nahi hai)
+    const isNew = !user.name && !user.email;
+
     user.loginOtp = null;
     user.loginOtpExpiry = null;
     await user.save();
 
     const token = jwt.sign(
-      { id: user._id, email: user.email, phone: user.phone },
+      { id: user._id, phone: user.phone },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
     res.json({
       success: true,
+      isNew,
       token,
       user: {
         _id: user._id,
         phone: user.phone,
         name: user.name,
-        email: user.email
-      }
+        email: user.email,
+        status: user.status,
+        isBlocked: user.isBlocked,
+        createdAt: user.createdAt,
+      },
     });
   } catch (err) {
     console.error('verifyOtp error:', err);
