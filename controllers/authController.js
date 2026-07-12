@@ -20,7 +20,7 @@ exports.verifyFirebaseToken = async (req, res) => {
 
     let user = await User.findOne({ phone });
     if (!user) {
-      user = new User({ phone, firebaseUid: uid, status: 'pending' });
+      user = new User({ phone, firebaseUid: uid, status: 'approved' });
     } else {
       user.firebaseUid = uid;
     }
@@ -87,7 +87,7 @@ exports.register = async (req, res) => {
       ...(phone && { phone }),
       name,
       password: hashedPassword,
-      status: 'pending',
+      status: 'approved',
     });
     await user.save();
 
@@ -324,7 +324,7 @@ exports.sendOtp = async (req, res) => {
     let user = await User.findOne({ phone });
     if (!user) {
       // Create user if not exists (auto-register on phone)
-      user = new User({ phone, status: 'pending' });
+      user = new User({ phone, status: 'approved' });
     }
     user.loginOtp = otp;
     user.loginOtpExpiry = expiry;
