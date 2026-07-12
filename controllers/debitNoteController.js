@@ -20,7 +20,7 @@ const generateVoucherNo = async (userId, type) => {
 exports.getDebitNotes = async (req, res) => {
   try {
     const { type } = req.query;
-    const filter = { userId: req.user.id };
+    const filter = req.user.isAdmin ? {} : { userId: req.user.id };
     if (type === 'amount' || type === 'item') filter.type = type;
 
     const notes = await DebitNote.find(filter)

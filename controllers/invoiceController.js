@@ -3,7 +3,8 @@ const Invoice = require('../models/Invoice');
 
 exports.getInvoices = async (req, res) => {
   try {
-    const invoices = await Invoice.find({ userId: req.user.id }).sort({ created_at: -1 });
+    const query = req.user.isAdmin ? {} : { userId: req.user.id };
+    const invoices = await Invoice.find(query).sort({ created_at: -1 });
     res.json({ success: true, invoices });
   } catch (err) {
     console.error('getInvoices error:', err);

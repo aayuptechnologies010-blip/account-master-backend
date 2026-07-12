@@ -16,11 +16,8 @@ const authMiddleware = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     if (decoded.role === 'admin') {
-      const ownerId = req.query.ownerId;
-      if (!ownerId) {
-        return res.status(400).json({ message: 'ownerId is required' });
-      }
-      req.user = { id: ownerId, isAdminView: true, adminId: decoded.id };
+      // Super admin directly accesses all data — no ownerId required
+      req.user = { id: decoded.id, role: 'admin', isAdmin: true };
     } else {
       // Re-check block/approval status on every request so admin actions
       // (block, reject) take effect immediately, not just on next login.

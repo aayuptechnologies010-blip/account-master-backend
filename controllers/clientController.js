@@ -6,17 +6,19 @@ const Payment = require('../models/Payment');
 
 exports.getClients = async (req, res) => {
   try {
-    const clients = await Client.find({ userId: req.user.id });
+    const isAdmin = req.user.isAdmin === true;
+    const query = isAdmin ? {} : { userId: req.user.id };
+    const clients = await Client.find(query);
 
     if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
       return res.json({ success: true, clients: clients.map((c) => ({ ...c.toObject(), outstandingBalance: 0 })) });
     }
-    const userObjectId = new mongoose.Types.ObjectId(req.user.id);
+    const matchStage = isAdmin ? {} : { userId: new mongoose.Types.ObjectId(req.user.id) };
 
     const [saleTotals, debitTotals, paymentTotals] = await Promise.all([
-      SaleBill.aggregate([{ $match: { userId: userObjectId } }, { $group: { _id: '$customerAc', total: { $sum: '$amountR' } } }]),
-      DebitNote.aggregate([{ $match: { userId: userObjectId } }, { $group: { _id: '$customerAc', total: { $sum: '$amountR' } } }]),
-      Payment.aggregate([{ $match: { userId: userObjectId } }, { $group: { _id: '$customerAc', total: { $sum: '$amount' } } }]),
+      SaleBill.aggregate([{ $match: matchStage }, { $group: { _id: '$customerAc', total: { $sum: '$amountR' } } }]),
+      DebitNote.aggregate([{ $match: matchStage }, { $group: { _id: '$customerAc', total: { $sum: '$amountR' } } }]),
+      Payment.aggregate([{ $match: matchStage }, { $group: { _id: '$customerAc', total: { $sum: '$amount' } } }]),
     ]);
 
     const toMap = (arr) => new Map(arr.map((x) => [String(x._id), x.total]));

@@ -22,13 +22,17 @@ const generateSalesmanCode = async (userId) => {
 
 exports.getSalesmen = async (req, res) => {
   try {
-    const salesmen = await Salesman.find({ userId: req.user.id });
+    const query = req.user.isAdmin ? {} : { userId: req.user.id };
+    const salesmen = await Salesman.find(query);
 
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const matchToday = req.user.isAdmin
+      ? { date: { $gte: startOfToday } }
+      : { userId: req.user.id, date: { $gte: startOfToday } };
     const [billSalesmen, noteSalesmen] = await Promise.all([
-      SaleBill.distinct('salesmanId', { userId: req.user.id, date: { $gte: startOfToday } }),
-      DebitNote.distinct('salesmanId', { userId: req.user.id, date: { $gte: startOfToday } }),
+      SaleBill.distinct('salesmanId', matchToday),
+      DebitNote.distinct('salesmanId', matchToday),
     ]);
     const activeIds = new Set([...billSalesmen, ...noteSalesmen].filter(Boolean).map(String));
 

@@ -75,7 +75,8 @@ exports.getPartyDetails = async (req, res) => {
 
 exports.getSaleBills = async (req, res) => {
   try {
-    const bills = await SaleBill.find({ userId: req.user.id })
+    const query = req.user.isAdmin ? {} : { userId: req.user.id };
+    const bills = await SaleBill.find(query)
       .sort({ date: -1 })
       .populate('customerAc', 'partyName prtCd contactNo')
       .populate('salesmanId', 'name code');
