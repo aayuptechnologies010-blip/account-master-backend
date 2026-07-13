@@ -1,3 +1,4 @@
+
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
@@ -16,8 +17,13 @@ const authMiddleware = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     if (decoded.role === 'admin') {
-      // Super admin directly accesses all data — no ownerId required
-      req.user = { id: decoded.id, role: 'admin', isAdmin: true };
+      // Super admin directly accesses all data — no ownerId required unless specified
+      const ownerId = req.headers['x-owner-id'] || req.query.ownerId;
+      req.user = {
+        id: ownerId || decoded.id,
+        role: 'admin',
+        isAdmin: !ownerId
+      };
     } else {
       // Re-check block/approval status on every request so admin actions
       // (block, reject) take effect immediately, not just on next login.
