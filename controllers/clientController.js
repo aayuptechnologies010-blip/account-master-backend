@@ -8,10 +8,30 @@ exports.getClients = async (req, res) => {
   try {
     const isAdmin = req.user.isAdmin === true;
     const query = isAdmin ? {} : { userId: req.user.id };
-    const clients = await Client.find(query);
+    const clients = await Client.find(query).populate('userId', 'name email phone');
+
+    // Fetch raw userIds to map populates that return null (i.e. Admin IDs)
+    const rawIds = await Client.find(query).select('userId');
+    const rawIdMap = new Map(rawIds.map(r => [String(r._id), String(r.userId)]));
+
+    const Admin = require('../models/Admin');
+    const admins = await Admin.find().select('name email');
+    const adminMap = new Map(admins.map(a => [String(a._id), a.name || a.email]));
 
     if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
-      return res.json({ success: true, clients: clients.map((c) => ({ ...c.toObject(), outstandingBalance: 0 })) });
+      const clientsWithBalance = clients.map((c) => {
+        const id = String(c._id);
+        let addedBy = 'Admin';
+        if (c.userId) {
+          addedBy = `${c.userId.name || 'User'} (${c.userId.phone || c.userId.email || ''})`;
+        } else {
+          const rawUserId = rawIdMap.get(id);
+          const adminName = adminMap.get(rawUserId);
+          if (adminName) addedBy = `${adminName} (Admin)`;
+        }
+        return { ...c.toObject(), outstandingBalance: 0, addedBy };
+      });
+      return res.json({ success: true, clients: clientsWithBalance });
     }
     const matchStage = isAdmin ? {} : { userId: new mongoose.Types.ObjectId(req.user.id) };
 
@@ -27,7 +47,17 @@ exports.getClients = async (req, res) => {
     const clientsWithBalance = clients.map((c) => {
       const id = String(c._id);
       const outstandingBalance = (saleMap.get(id) || 0) - (debitMap.get(id) || 0) - (paymentMap.get(id) || 0);
-      return { ...c.toObject(), outstandingBalance };
+      
+      let addedBy = 'Admin';
+      if (c.userId) {
+        addedBy = `${c.userId.name || 'User'} (${c.userId.phone || c.userId.email || ''})`;
+      } else {
+        const rawUserId = rawIdMap.get(id);
+        const adminName = adminMap.get(rawUserId);
+        if (adminName) addedBy = `${adminName} (Admin)`;
+      }
+
+      return { ...c.toObject(), outstandingBalance, addedBy };
     });
 
     res.json({ success: true, clients: clientsWithBalance });
