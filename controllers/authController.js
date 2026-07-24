@@ -107,24 +107,25 @@ exports.register = async (req, res) => {
   }
 };
 
-// Login — email + password match karo, token do
+// Login — email ya phone + password match karo, token do
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, phone, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'email aur password dono required hain' });
+    if (!password || (!email && !phone)) {
+      return res.status(400).json({ success: false, message: 'email/phone aur password dono required hain' });
     }
 
-    const cleanEmail = email.toLowerCase().trim();
-    const user = await User.findOne({ email: cleanEmail });
+    const user = email
+      ? await User.findOne({ email: email.toLowerCase().trim() })
+      : await User.findOne({ phone });
     if (!user || !user.password) {
-      return res.status(401).json({ success: false, message: 'Email ya password galat hai' });
+      return res.status(401).json({ success: false, message: 'Email/phone ya password galat hai' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Email ya password galat hai' });
+      return res.status(401).json({ success: false, message: 'Email/phone ya password galat hai' });
     }
 
     if (user.isBlocked) {

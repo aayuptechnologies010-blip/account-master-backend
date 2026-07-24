@@ -49,6 +49,13 @@ app.use(apiLimiter);
 
 app.use(express.json());
 
+app.use('/auth', (req, res, next) => {
+  const safeBody = { ...req.body };
+  if (safeBody.password) safeBody.password = '[REDACTED]';
+  console.log(`[DEBUG] ${req.method} ${req.originalUrl} body keys:`, Object.keys(req.body || {}), safeBody);
+  next();
+});
+
 app.use('/auth',      require('./routes/auth'));
 app.use('/admin',     require('./routes/admin'));
 app.use('/dashboard', require('./routes/dashboard'));
